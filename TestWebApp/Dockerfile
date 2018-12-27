@@ -5,17 +5,16 @@ EXPOSE 443
 
 FROM microsoft/dotnet:2.2-sdk AS build
 WORKDIR /src
-COPY ["TestWebApp/TestWebApp.csproj", "TestWebApp/"]
-RUN dotnet restore "TestWebApp/TestWebApp.csproj"
+COPY TestWebApp/TestWebApp.csproj TestWebApp/
+RUN dotnet restore TestWebApp/TestWebApp.csproj
 COPY . .
-WORKDIR "/src/TestWebApp"
-RUN dotnet build "TestWebApp.csproj" -c Release -o /app
+WORKDIR /src/TestWebApp
+RUN dotnet build TestWebApp.csproj -c Release -o /app
 
 FROM build AS publish
-RUN dotnet publish "TestWebApp.csproj" -c Release -o /app
+RUN dotnet publish TestWebApp.csproj -c Release -o /app
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app .
-ENV ASPNETCORE_ENVIRONMENT Docker2
 ENTRYPOINT ["dotnet", "TestWebApp.dll"]
